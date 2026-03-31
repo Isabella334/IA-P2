@@ -13,6 +13,8 @@ domains = {
 }
 domains_copy = {var: list(values) for var, values in domains.items()}
 
+steps = 0
+
 def is_consistent(var, value, assignment):
     for neighbor in graph[var]:
         if neighbor in assignment and assignment[neighbor] == value:
@@ -21,6 +23,8 @@ def is_consistent(var, value, assignment):
 
 # Algoritmo de backtracking search
 def backtrack(assignment, domains, graph):
+    global steps
+    steps += 1
     if len(assignment) == len(graph):
         return assignment
         
@@ -61,8 +65,18 @@ def restore_domains(domains, removed):
     for var, value in removed:
         domains[var].append(value)
 
+#MCV 
+def select_unassigned_variable(assignment, domains):
+    unassigned = [v for v in domains if v not in assignment]
+    
+    # Escoge la variable con menor tamaño de dominio
+    return min(unassigned, key=lambda var: len(domains[var]))
+
 
 solution = backtrack({}, domains_copy, graph)
 
 print("Solución encontrada:")
 print(solution)
+print("Pasos:", steps)
+
+
