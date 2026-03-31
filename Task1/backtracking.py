@@ -28,9 +28,7 @@ def backtrack(assignment, domains, graph):
     if len(assignment) == len(graph):
         return assignment
         
-    for var in graph:
-        if var not in assignment:
-            break
+    var = select_unassigned_variable(assignment, domains)
 
     for value in domains[var]:
         if is_consistent(var, value, assignment):
