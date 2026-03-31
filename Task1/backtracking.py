@@ -11,6 +11,7 @@ domains = {
     node: ['Rojo', 'Verde', 'Azul', 'Amarillo']
     for node in graph
 }
+domains_copy = {var: list(values) for var, values in domains.items()}
 
 def is_consistent(var, value, assignment):
     for neighbor in graph[var]:
@@ -19,11 +20,10 @@ def is_consistent(var, value, assignment):
     return True
 
 # Algoritmo de backtracking search
-def backtrack(assignment):
+def backtrack(assignment, domains, graph):
     if len(assignment) == len(graph):
         return assignment
-
-    # Seleccionar variable no asignada
+        
     for var in graph:
         if var not in assignment:
             break
@@ -31,14 +31,15 @@ def backtrack(assignment):
     for value in domains[var]:
         if is_consistent(var, value, assignment):
             assignment[var] = value
-
-            result = backtrack(assignment)
-            if result:
-                return result
-
-            # Backtrack
+            
+            # Forward checking
+            success, removed = forward_checking(var, value, domains, graph)
+            if success:
+                result = backtrack(assignment, domains, graph)
+                if result:
+                    return result
             del assignment[var]
-
+            restore_domains(domains, removed)
     return None
 
 #Forward checking
@@ -56,7 +57,12 @@ def forward_checking(var, value, domains, graph):
 
     return True, removed
 
-solution = backtrack({})
+def restore_domains(domains, removed):
+    for var, value in removed:
+        domains[var].append(value)
+
+
+solution = backtrack({}, domains_copy, graph)
 
 print("Solución encontrada:")
 print(solution)
