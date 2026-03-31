@@ -41,6 +41,21 @@ def backtrack(assignment):
 
     return None
 
+#Forward checking
+def forward_checking(var, value, domains, graph):
+    removed = []
+
+    for neighbor in graph[var]:
+        if neighbor in domains and value in domains[neighbor]:
+            domains[neighbor].remove(value)
+            removed.append((neighbor, value))
+
+            # Si un dominio queda vacío → fallo
+            if len(domains[neighbor]) == 0:
+                return False, removed
+
+    return True, removed
+
 solution = backtrack({})
 
 print("Solución encontrada:")
