@@ -40,3 +40,8 @@ def backtrack(assignment):
             del assignment[var]
 
     return None
+
+solution = backtrack({})
+
+print("Solución encontrada:")
+print(solution)
