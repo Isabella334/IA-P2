@@ -1,4 +1,5 @@
-# Grafo
+import time
+
 graph = {
     'A': ['B', 'C'],
     'B': ['A', 'D'],
@@ -6,14 +7,13 @@ graph = {
     'D': ['B']
 }
 
-# Dominios (protocolos)
 domains = {
     node: ['Rojo', 'Verde', 'Azul', 'Amarillo']
     for node in graph
 }
-domains_copy = {var: list(values) for var, values in domains.items()}
 
-steps = 0
+steps_puro = 0
+steps_opt = 0
 
 def is_consistent(var, value, assignment):
     for neighbor in graph[var]:
@@ -21,39 +21,41 @@ def is_consistent(var, value, assignment):
             return False
     return True
 
-# Algoritmo de backtracking search
-def backtrack(assignment, domains, graph):
-    global steps
-    steps += 1
+# BACKTRACKING PURO
+
+def backtrack_puro(assignment):
+    global steps_puro
+    steps_puro += 1
+
     if len(assignment) == len(graph):
         return assignment
-        
-    var = select_unassigned_variable(assignment, domains)
+
+    for var in graph:
+        if var not in assignment:
+            break
 
     for value in domains[var]:
         if is_consistent(var, value, assignment):
             assignment[var] = value
-            
-            # Forward checking
-            success, removed = forward_checking(var, value, domains, graph)
-            if success:
-                result = backtrack(assignment, domains, graph)
-                if result:
-                    return result
+
+            result = backtrack_puro(assignment)
+            if result:
+                return result
+
             del assignment[var]
-            restore_domains(domains, removed)
+
     return None
 
-#Forward checking
+# FORWARD CHECKING
+
 def forward_checking(var, value, domains, graph):
     removed = []
 
     for neighbor in graph[var]:
-        if neighbor in domains and value in domains[neighbor]:
+        if value in domains[neighbor]:
             domains[neighbor].remove(value)
             removed.append((neighbor, value))
 
-            # Si un dominio queda vacío → fallo
             if len(domains[neighbor]) == 0:
                 return False, removed
 
@@ -63,18 +65,67 @@ def restore_domains(domains, removed):
     for var, value in removed:
         domains[var].append(value)
 
-#MCV 
+# MCV
+
 def select_unassigned_variable(assignment, domains):
     unassigned = [v for v in domains if v not in assignment]
-    
-    # Escoge la variable con menor tamaño de dominio
     return min(unassigned, key=lambda var: len(domains[var]))
 
+# BACKTRACKING OPTIMIZADO
 
-solution = backtrack({}, domains_copy, graph)
+def backtrack_opt(assignment, domains, graph):
+    global steps_opt
+    steps_opt += 1
 
-print("Solución encontrada:")
-print(solution)
-print("Pasos:", steps)
+    if len(assignment) == len(graph):
+        return assignment
 
+    var = select_unassigned_variable(assignment, domains)
 
+    for value in domains[var]:
+        if is_consistent(var, value, assignment):
+            assignment[var] = value
+
+            success, removed = forward_checking(var, value, domains, graph)
+
+            if success:
+                result = backtrack_opt(assignment, domains, graph)
+                if result:
+                    return result
+
+            del assignment[var]
+            restore_domains(domains, removed)
+
+    return None
+
+# Análisis
+
+# ---- Backtracking puro ----
+steps_puro = 0
+start = time.time()
+
+solution_puro = backtrack_puro({})
+
+end = time.time()
+time_puro = end - start
+
+# ---- Backtracking optimizado ----
+steps_opt = 0
+domains_copy = {var: list(values) for var, values in domains.items()}
+
+start = time.time()
+
+solution_opt = backtrack_opt({}, domains_copy, graph)
+
+end = time.time()
+time_opt = end - start
+
+print("Backtracking puro:")
+print("Solución:", solution_puro)
+print("Pasos:", steps_puro)
+print("Tiempo:", time_puro)
+
+print("\nBacktracking optimizado (FC + MCV):")
+print("Solución:", solution_opt)
+print("Pasos:", steps_opt)
+print("Tiempo:", time_opt)
