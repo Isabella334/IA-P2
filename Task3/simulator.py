@@ -1,6 +1,6 @@
 import random
-from Task2.game import GameState
-from Task2.network import Network
+from game import GameState
+from network import Network
 
 P_SUCCESS = 0.80
 P_FAIL = 0.20

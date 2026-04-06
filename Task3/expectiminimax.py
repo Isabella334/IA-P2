@@ -1,6 +1,6 @@
 import math
-from Task2.evaluator import HeuristicEvaluator
-from Task2.game import GameState
+from evaluator import HeuristicEvaluator
+from game import GameState
 
 P_SUCCESS = 0.80
 P_FAIL = 0.20

@@ -1,5 +1,5 @@
 import random
-from Task2.game import GameState
+from game import GameState
 
 class RandomAgent:
     def __init__(self, seed: int | None = None):
